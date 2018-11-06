@@ -5,11 +5,16 @@
 This city is correcting hits and vixelizing them. The input is penthesilea output containing hits, kdst global information and mc info. The output contains tables:
 - corrected hits
 - voxels
-- kdst global info 
+- kdst global info
 - mc info
 
 
 """
+from dataclasses import dataclass
+from typing      import List
+from typing      import Dict
+from typing      import Any
+
 from operator import attrgetter
 
 import tables as tb
@@ -31,25 +36,30 @@ from .. io.       voxels_io import   true_voxels_writer
 from .. io.         kdst_io import            kr_writer
 
 
-def hits_and_kdst_from_files(paths : str )-> dict:
+def hits_and_kdst_from_files(paths : str )-> Dict[str, Any]:
     """ source generator, yields hits and global info per event, and MC whole table  """
     pass
+    
 
-class HitsSelectorOutput:
+@dataclass
+class  HitsSelectorOutput:
     """
     Class devoted to hold the output of the HitsSelector.
 
     It contains:
-        - passed  : a boolean flag indicating whether the event as
-                    a whole has passed the filter.
-        - hits   :  a boolean flag indicating whether the hit has
-                    passed the filter.
+        - passed      : a boolean flag indicating whether the event as
+                        a whole has passed the filter.
+        - good_hits   : a boolean flag indicating whether the hit has
+                        passed the filter.
     """
-    pass
+
+    passed      : bool
+    good_hits   : List[bool]
+
 
 def hits_selector():
     def select_hits (hitc : evm.HitCollection)-> HitsSelectorOutput:
-        """selects events and hits that passed the filter - probably all non NN hits """ 
+        """selects events and hits that passed the filter - probably all non NN hits """
         pass
     return select_hits
 
