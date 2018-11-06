@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from typing      import List
 from typing      import Dict
 from typing      import Any
+from pandas      import DataFrame
 
 from operator import attrgetter
 
@@ -39,7 +40,7 @@ from .. io.         kdst_io import            kr_writer
 def hits_and_kdst_from_files(paths : str )-> Dict[str, Any]:
     """ source generator, yields hits and global info per event, and MC whole table  """
     pass
-    
+
 
 @dataclass
 class  HitsSelectorOutput:
@@ -58,7 +59,7 @@ class  HitsSelectorOutput:
 
 
 def hits_selector():
-    def select_hits (hitc : evm.HitCollection)-> HitsSelectorOutput:
+    def select_hits (hitc : DataFrame)-> HitsSelectorOutput:
         """selects events and hits that passed the filter - probably all non NN hits """
         pass
     return select_hits
