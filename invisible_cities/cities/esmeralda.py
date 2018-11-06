@@ -85,39 +85,39 @@ def hits_voxelizer():
 @city
 def esmeralda(files_in, file_out, compression, event_range, print_mod, run_number,
               **args):
-    
+
     select_hits   = fl.map(hits_selector(**locals()),
                            args = 'hits',
                            out  = 'hits_selector')
-    
+
     hits_select   = fl.count_filter(attrgetter("passed"), args="hits_selector")
-    
+
     merge_NN_hits = fl.map(NN_hits_merger(**locals()),
                            args = ('hits', 'hits_selector'),
                            out  = 'merged_hits')
-    
+
     correct_hits  = fl.map(hits_corrector(**locals()),
                            args = 'merged_hits',
                            out  = 'corrected_hits')
     voxelize_hits = fl.map(hits_voxelizer(**locals()),
                            args = 'corrected_hits',
                            out  = 'voxels')
-    
+
     event_count_in  = fl.spy_count()
     event_count_out = fl.spy_count()
-    
+
     with tb.open_file(file_out, "w", filters = tbl.filters(compression)) as h5out:
-        
+
         # Define writers...
         write_event_info = fl.sink(run_and_event_writer(h5out), args=("run_number", "event_number", "timestamp"))
-        
+
         write_mc_        = mc_info_writer(h5out) if run_number <= 0 else (lambda *_: None)
         write_mc         = fl.sink(write_mc_, args=("mc", "event_number"))
-        
+
         write_pointlike_event = fl.sink(kr_writer(h5out), args="pointlike_event")
         write_hits            = fl.sink(hits_writer(h5out), args="hits")
         write_voxels          = fl.sink(true_voxels_writer(h5out), args='voxels')
-        
+
         return push(source = hits_and_kdst_from_files(files_in),
                     pipe   = pipe(
                         fl.slice(*event_range, close_all=True),
@@ -131,10 +131,9 @@ def esmeralda(files_in, file_out, compression, event_range, print_mod, run_numbe
                         voxelize_hits                         ,
                         fl.fork(write_mc                      ,
                                 write_pointlike_event         ,
-                                write_hits                    ,  
+                                write_hits                    ,
                                 write_voxels                  ,
                                 write_event_info             )),
                     result = dict(events_in  = event_count_in .future,
                                   events_out = event_count_out.future,
                                   selection  = hits_select    .future))
-    
